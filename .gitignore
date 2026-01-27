@@ -1,0 +1,7 @@
+# .gitignore
+# Ignore node modules
+# venv
+venv/
+__pycache__/
+eco1.zip/
+*.zip
