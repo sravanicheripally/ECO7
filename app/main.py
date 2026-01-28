@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from app.api import auth, users, admin_roles
+from app.api import auth
+from app.api.admin import admin_roles
+from app.api.users import users
 
 app = FastAPI(title="ECO7 GEO-DMS")
 

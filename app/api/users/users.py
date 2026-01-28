@@ -53,9 +53,10 @@ def get_all_users(
 
         response.append({
             "id": user.id,
-            "full_name": user.full_name,
+            "name": user.name,
             "email": user.email,
             "username": user.username,
+            "mobile": user.mobile,
             "is_active": user.is_active,
             "roles": [
                 {
@@ -68,6 +69,7 @@ def get_all_users(
         })
 
     return response
+
 
 
 # ------------------------------------------------

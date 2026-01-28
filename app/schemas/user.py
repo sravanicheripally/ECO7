@@ -14,30 +14,35 @@ class UserRoleResponse(BaseModel):
 
 class UserMeResponse(BaseModel):
     id: UUID
-    full_name: str
+    name: str
     email: EmailStr
     username: str
     is_active: bool
-    roles: list[UserRoleResponse]
-
+    roles: List[UserRoleResponse]
 
     class Config:
         from_attributes = True
 
 
+   
+
+
 
 class UserCreate(BaseModel):
-    full_name: str
+    name: str
     email: EmailStr
     username: str
     password: str
+    mobile: Optional[str] = None
     user_role_ids: Optional[List[UUID]] = []
 
 
 class UserUpdate(BaseModel):
-    full_name: str | None = None
-    email: EmailStr | None = None
-    is_active: bool | None = None
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    username: Optional[str] = None
+    mobile: Optional[str] = None
+    is_active: Optional[bool] = None
 
 
 class UserRoleUpdate(BaseModel):
@@ -56,12 +61,12 @@ class UserResponse(BaseModel):
 
 class UserListItem(BaseModel):
     id: UUID
-    full_name: str
+    name: str
     email: EmailStr
     username: str
+    mobile: Optional[str]
     is_active: bool
-    role_name: str
-    role_code: str
+    roles: List[UserRoleResponse]
 
     class Config:
         from_attributes = True

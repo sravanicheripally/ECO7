@@ -11,11 +11,14 @@ class User(Base):
     __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    full_name = Column(String)
+    name = Column(String)
+    username = Column(String(255), nullable=False)
     email = Column(String, unique=True)
-    username = Column(String, unique=True)
-    password_hash = Column(String)
+    password = Column(String)
     is_active = Column(Boolean, default=True)
+    mobile = Column(String, unique=True, nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), default=datetime.utcnow)
-
+    deleted_at = Column(TIMESTAMP(timezone=False), nullable=True)
+ 
+ 
 
