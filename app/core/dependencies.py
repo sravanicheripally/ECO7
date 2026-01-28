@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException,status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
@@ -47,25 +47,40 @@ def get_current_user(
 def get_current_super_admin(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
+<<<<<<< Updated upstream
 ):
     """Verify that the current user has the SUPER_ADMIN role"""
     super_admin_role = db.query(UserRole).filter(
         (UserRole.code == " Super Admin") | (UserRole.code == "User Admin"),
         UserRole.is_active == True
     ).first()
+=======
+) -> User:
+    """
+    Allows access only if the current user has SUPER_ADMIN role
+    """
+>>>>>>> Stashed changes
 
-    if not super_admin_role:
-        raise HTTPException(status_code=500, detail="Super admin role not found")
-
-    has_super_admin = db.query(UserUserRole).filter(
-        UserUserRole.user_id == current_user.id,
-        UserUserRole.user_role_id == super_admin_role.id
-    ).first()
+    has_super_admin = (
+        db.query(UserRole)
+        .join(UserUserRole, UserUserRole.user_role_id == UserRole.id)
+        .filter(
+            UserUserRole.user_id == current_user.id,
+            UserRole.code == "SUPER_ADMIN",
+            UserRole.is_active == True
+        )
+        .first()
+    )
 
     if not has_super_admin:
         raise HTTPException(
+<<<<<<< Updated upstream
             status_code=403,
             detail="Only super admin and user admin can perform this action"
+=======
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super admin role not found"
+>>>>>>> Stashed changes
         )
 
     return current_user

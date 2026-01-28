@@ -9,7 +9,6 @@ psycopg2-binary==2.9.9
 # Authentication & Security
 python-jose==3.3.0
 passlib[bcrypt]==1.7.4
-bcrypt==4.1.2
 
 # Validation & Settings
 pydantic==2.6.1
@@ -21,6 +20,3 @@ alembic==1.13.1
 
 # Utilities
 python-dotenv==1.0.1
-
-passlib==1.7.4
-bcrypt==3.2.2
