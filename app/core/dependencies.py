@@ -44,43 +44,62 @@ def get_current_user(
     return user
 
 
+
 def get_current_super_admin(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
-<<<<<<< Updated upstream
 ):
-    """Verify that the current user has the SUPER_ADMIN role"""
-    super_admin_role = db.query(UserRole).filter(
-        (UserRole.code == " Super Admin") | (UserRole.code == "User Admin"),
-        UserRole.is_active == True
-    ).first()
-=======
-) -> User:
     """
-    Allows access only if the current user has SUPER_ADMIN role
+    Allow only SUPER_ADMIN or USER_ADMIN
     """
->>>>>>> Stashed changes
 
-    has_super_admin = (
+    allowed_roles = ("SUPER_ADMIN", "USER_ADMIN")
+
+    has_access = (
         db.query(UserRole)
         .join(UserUserRole, UserUserRole.user_role_id == UserRole.id)
         .filter(
             UserUserRole.user_id == current_user.id,
-            UserRole.code == "SUPER_ADMIN",
+            UserRole.code.in_(allowed_roles),   # ✅ FIX
             UserRole.is_active == True
         )
         .first()
     )
 
-    if not has_super_admin:
+    if not has_access:
         raise HTTPException(
-<<<<<<< Updated upstream
-            status_code=403,
-            detail="Only super admin and user admin can perform this action"
-=======
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Super admin role not found"
->>>>>>> Stashed changes
+            detail="Only super admin and user admin can perform this action"
         )
 
     return current_user
+
+
+#only department admin can create department and assign roles to users
+def require_department_admin(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Allow only DEPARTMENT_ADMIN
+    """
+
+    has_access = (
+        db.query(UserRole)
+        .join(UserUserRole, UserUserRole.user_role_id == UserRole.id)
+        .filter(
+            UserUserRole.user_id == current_user.id,
+            UserRole.code == "DEPARTMENT_ADMIN",
+            UserRole.is_active == True
+        )
+        .first()
+    )
+
+    if not has_access:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only department admin can perform this action"
+        )
+
+    return current_user
+
