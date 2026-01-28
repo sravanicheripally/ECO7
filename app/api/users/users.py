@@ -5,6 +5,7 @@ from datetime import datetime
 
 from app.core.database import get_db
 from app.core.security import hash_password
+from app.core.dependencies import get_current_super_admin
 
 from app.models.user import User
 from app.models.user_role import UserRole
@@ -110,7 +111,11 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)):
 # CREATE USER (DEFAULT + MULTIPLE ROLES)
 # ------------------------------------------------
 @router.post("")
-def create_user(payload: UserCreate, db: Session = Depends(get_db)):
+def create_user(
+    payload: UserCreate,
+    current_user: User = Depends(get_current_super_admin),
+    db: Session = Depends(get_db)
+):
 
     user = User(
         full_name=payload.full_name,

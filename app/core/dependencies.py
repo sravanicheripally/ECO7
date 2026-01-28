@@ -10,6 +10,8 @@ from app.core.database import get_db
 from app.core.security import SECRET_KEY, ALGORITHM
 from app.models.user import User
 from app.models.user_session import UserSession
+from app.models.user_role import UserRole
+from app.models.user_user_role import UserUserRole
 from app.utils.token import hash_token
 
 security = HTTPBearer()
@@ -40,3 +42,30 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="User not found")
 
     return user
+
+
+def get_current_super_admin(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Verify that the current user has the SUPER_ADMIN role"""
+    super_admin_role = db.query(UserRole).filter(
+        UserRole.code == " Super Admin",
+        UserRole.is_active == True
+    ).first()
+
+    if not super_admin_role:
+        raise HTTPException(status_code=500, detail="Super admin role not found")
+
+    has_super_admin = db.query(UserUserRole).filter(
+        UserUserRole.user_id == current_user.id,
+        UserUserRole.user_role_id == super_admin_role.id
+    ).first()
+
+    if not has_super_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Only super admin can perform this action"
+        )
+
+    return current_user
