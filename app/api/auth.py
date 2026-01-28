@@ -39,7 +39,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
 
-    if not verify_password(payload.password, user.password_hash):
+    if not verify_password(payload.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid password")
 
     access_token = create_access_token({"sub": str(user.id)})
@@ -138,7 +138,7 @@ def get_me(
 
     return {
         "id": current_user.id,
-        "full_name": current_user.full_name,
+        "name": current_user.name,
         "email": current_user.email,
         "username": current_user.username,
         "is_active": current_user.is_active,
