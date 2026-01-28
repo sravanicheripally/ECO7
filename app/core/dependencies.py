@@ -47,19 +47,12 @@ def get_current_user(
 def get_current_super_admin(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
-<<<<<<< Updated upstream
 ):
     """Verify that the current user has the SUPER_ADMIN role"""
     super_admin_role = db.query(UserRole).filter(
         (UserRole.code == " Super Admin") | (UserRole.code == "User Admin"),
         UserRole.is_active == True
     ).first()
-=======
-) -> User:
-    """
-    Allows access only if the current user has SUPER_ADMIN role
-    """
->>>>>>> Stashed changes
 
     has_super_admin = (
         db.query(UserRole)
@@ -74,13 +67,8 @@ def get_current_super_admin(
 
     if not has_super_admin:
         raise HTTPException(
-<<<<<<< Updated upstream
             status_code=403,
             detail="Only super admin and user admin can perform this action"
-=======
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Super admin role not found"
->>>>>>> Stashed changes
         )
 
     return current_user
