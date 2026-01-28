@@ -92,7 +92,7 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)):
 
     return {
         "id": user.id,
-        "full_name": user.full_name,
+        "name": user.name,
         "email": user.email,
         "username": user.username,
         "is_active": user.is_active,
@@ -118,10 +118,10 @@ def create_user(
 ):
 
     user = User(
-        full_name=payload.full_name,
+        name=payload.name,
         email=payload.email,
         username=payload.username,
-        password_hash=hash_password(payload.password),
+        password=hash_password(payload.password),
         is_active=True,
         created_at=datetime.utcnow(),
     )

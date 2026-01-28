@@ -50,7 +50,7 @@ def get_current_super_admin(
 ):
     """Verify that the current user has the SUPER_ADMIN role"""
     super_admin_role = db.query(UserRole).filter(
-        UserRole.code == " Super Admin",
+        (UserRole.code == " Super Admin") | (UserRole.code == "User Admin"),
         UserRole.is_active == True
     ).first()
 
@@ -65,7 +65,7 @@ def get_current_super_admin(
     if not has_super_admin:
         raise HTTPException(
             status_code=403,
-            detail="Only super admin can perform this action"
+            detail="Only super admin and user admin can perform this action"
         )
 
     return current_user
