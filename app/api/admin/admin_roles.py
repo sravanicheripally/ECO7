@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_super_admin
 from app.models.user import User
 from app.models.user_role import UserRole
 from app.schemas.user_role import (
@@ -66,6 +65,7 @@ def get_role(
 )
 def create_role(
     payload: UserRoleCreate,
+<<<<<<< HEAD
     current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db),
 ):
@@ -77,11 +77,25 @@ def create_role(
         )
         .first()
     )
+=======
+    db: Session = Depends(get_db)
+):
+
+    # Check if role already exists (code is already normalized to uppercase by validator)
+    exists = db.query(UserRole).filter(
+        (UserRole.name == payload.name) |
+        (UserRole.code == payload.code)  # Normalized code from validator
+    ).first()
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 
     if exists:
         raise HTTPException(
             status_code=400,
+<<<<<<< HEAD
             detail="Role with same name or code already exists"
+=======
+            detail=f"Role with this name or code already exists. Code: {payload.code}"
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
         )
 
     role = UserRole(
@@ -107,8 +121,12 @@ def create_role(
 def update_role(
     role_id: UUID,
     payload: UserRoleUpdate,
+<<<<<<< HEAD
     current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db),
+=======
+    db: Session = Depends(get_db)
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 ):
     role = (
         db.query(UserRole)
@@ -142,9 +160,14 @@ def update_role(
 # ------------------------------------------------
 @router.delete("/{role_id}", status_code=status.HTTP_200_OK)
 def delete_role(
+<<<<<<< HEAD
     role_id: UUID,
     current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db),
+=======
+    id: UUID,
+    db: Session = Depends(get_db)
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 ):
     role = (
         db.query(UserRole)

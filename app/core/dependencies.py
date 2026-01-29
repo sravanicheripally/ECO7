@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # from fastapi import Depends, HTTPException,status
 # from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -291,6 +292,12 @@
 #modified code
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+=======
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from typing import List
+
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 from sqlalchemy.orm import Session
 from jose import jwt
 from uuid import UUID
@@ -349,6 +356,15 @@ def get_current_super_admin(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+<<<<<<< HEAD
+=======
+    """Verify that the current user has the SUPER_ADMIN role"""
+    super_admin_role = db.query(UserRole).filter(
+        (UserRole.code == " Super Admin") | (UserRole.code == "User Admin"),
+        UserRole.is_active == True
+    ).first()
+
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
     allowed_roles = ("SUPER_ADMIN", "USER_ADMIN")
 
     has_access = (
@@ -364,8 +380,13 @@ def get_current_super_admin(
 
     if not has_access:
         raise HTTPException(
+<<<<<<< HEAD
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only Super Admin or User Admin can perform this action"
+=======
+            status_code=403,
+            detail="Only super admin and user admin can perform this action"
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
         )
 
     return current_user
@@ -393,6 +414,7 @@ def require_department_admin(
     return current_user
 
 
+<<<<<<< HEAD
 # ------------------------------------------------
 # DEPARTMENT ROLE: OWNER
 # ------------------------------------------------
@@ -423,3 +445,54 @@ def require_department_owner(
         )
 
     return current_user
+=======
+def get_user_roles(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> List[UserRole]:
+    """
+    Get all roles for the current user
+    """
+    roles = (
+        db.query(UserRole)
+        .join(UserUserRole, UserRole.id == UserUserRole.user_role_id)
+        .filter(
+            UserUserRole.user_id == current_user.id,
+            UserRole.is_active == True
+        )
+        .all()
+    )
+    return roles
+
+
+def require_role(required_roles: List[str]):
+    """
+    Generic role checker - pass list of role codes
+    Usage: Depends(require_role(["ADMIN", "SUPER_ADMIN"]))
+    """
+    def check_role(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+    ):
+        user_roles = (
+            db.query(UserRole)
+            .join(UserUserRole, UserRole.id == UserUserRole.user_role_id)
+            .filter(
+                UserUserRole.user_id == current_user.id,
+                UserRole.code.in_(required_roles),
+                UserRole.is_active == True
+            )
+            .first()
+        )
+
+        if not user_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"User must have one of these roles: {', '.join(required_roles)}"
+            )
+
+        return current_user
+
+    return check_role
+
+>>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
