@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 
@@ -11,73 +11,24 @@ from app.schemas.user_role import (
     UserRoleResponse
 )
 
-router = APIRouter(
-    prefix="/admin/user-roles",
-    tags=["Admin - User Roles"]
-)
-
-# ------------------------------------------------
-# GET ALL USER ROLES (SUPER / USER ADMIN)
-# ------------------------------------------------
-@router.get("/", response_model=list[UserRoleResponse])
-def get_all_roles(
-    current_user: User = Depends(get_current_super_admin),
-    db: Session = Depends(get_db),
-):
-    return (
-        db.query(UserRole)
-        .filter(UserRole.is_active == True)
-        .all()
-    )
+router = APIRouter(prefix="/admin/user-roles", tags=["Admin - User Roles"])
 
 
-# ------------------------------------------------
-# GET SINGLE ROLE BY ID (SUPER / USER ADMIN)
-# ------------------------------------------------
-@router.get("/{role_id}", response_model=UserRoleResponse)
-def get_role(
-    role_id: UUID,
-    current_user: User = Depends(get_current_super_admin),
-    db: Session = Depends(get_db),
-):
-    role = (
-        db.query(UserRole)
-        .filter(
-            UserRole.id == role_id,
-            UserRole.is_active == True
-        )
-        .first()
-    )
+@router.get("", response_model=list[UserRoleResponse])
+def get_all_roles(db: Session = Depends(get_db)):
+    return db.query(UserRole).all()
 
+
+@router.get("/{id}", response_model=UserRoleResponse)
+def get_role(id: UUID, db: Session = Depends(get_db)):
+    role = db.query(UserRole).filter(UserRole.id == id).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
-
     return role
 
-
-# ------------------------------------------------
-# CREATE ROLE (SUPER / USER ADMIN)
-# ------------------------------------------------
-@router.post(
-    "/",
-    response_model=UserRoleResponse,
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("", response_model=UserRoleResponse)
 def create_role(
     payload: UserRoleCreate,
-<<<<<<< HEAD
-    current_user: User = Depends(get_current_super_admin),
-    db: Session = Depends(get_db),
-):
-    exists = (
-        db.query(UserRole)
-        .filter(
-            (UserRole.name == payload.name) |
-            (UserRole.code == payload.code)
-        )
-        .first()
-    )
-=======
     db: Session = Depends(get_db)
 ):
 
@@ -86,16 +37,11 @@ def create_role(
         (UserRole.name == payload.name) |
         (UserRole.code == payload.code)  # Normalized code from validator
     ).first()
->>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 
     if exists:
         raise HTTPException(
             status_code=400,
-<<<<<<< HEAD
-            detail="Role with same name or code already exists"
-=======
             detail=f"Role with this name or code already exists. Code: {payload.code}"
->>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
         )
 
     role = UserRole(
@@ -104,45 +50,28 @@ def create_role(
         description=payload.description,
         is_system_role=payload.is_system_role,
         is_predefined=payload.is_predefined,
-        is_active=True,
+        is_active=True
     )
 
     db.add(role)
     db.commit()
     db.refresh(role)
-
     return role
 
 
-# ------------------------------------------------
-# UPDATE ROLE (NON-SYSTEM ONLY)
-# ------------------------------------------------
-@router.put("/{role_id}", response_model=UserRoleResponse)
+@router.put("/{id}", response_model=UserRoleResponse)
 def update_role(
-    role_id: UUID,
+    id: UUID,
     payload: UserRoleUpdate,
-<<<<<<< HEAD
-    current_user: User = Depends(get_current_super_admin),
-    db: Session = Depends(get_db),
-=======
     db: Session = Depends(get_db)
->>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 ):
-    role = (
-        db.query(UserRole)
-        .filter(
-            UserRole.id == role_id,
-            UserRole.is_active == True
-        )
-        .first()
-    )
-
+    role = db.query(UserRole).filter(UserRole.id == id).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
     if role.is_system_role:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=403,
             detail="System roles cannot be modified"
         )
 
@@ -151,39 +80,21 @@ def update_role(
 
     db.commit()
     db.refresh(role)
-
     return role
 
 
-# ------------------------------------------------
-# DELETE ROLE (SOFT DELETE, NON-SYSTEM ONLY)
-# ------------------------------------------------
-@router.delete("/{role_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{id}")
 def delete_role(
-<<<<<<< HEAD
-    role_id: UUID,
-    current_user: User = Depends(get_current_super_admin),
-    db: Session = Depends(get_db),
-=======
     id: UUID,
     db: Session = Depends(get_db)
->>>>>>> 32c585e93e4a7e17d3c00855437cea0792ea80b0
 ):
-    role = (
-        db.query(UserRole)
-        .filter(
-            UserRole.id == role_id,
-            UserRole.is_active == True
-        )
-        .first()
-    )
-
+    role = db.query(UserRole).filter(UserRole.id == id).first()
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
     if role.is_system_role:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
+            status_code=403,
             detail="System roles cannot be deleted"
         )
 
