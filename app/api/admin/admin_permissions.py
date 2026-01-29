@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_super_admin
 from app.models.user import User
 from app.models.user_permission import UserPermission
 from app.models.user_role_permission import UserRolePermission
@@ -52,7 +51,6 @@ def get_permission(id: UUID, db: Session = Depends(get_db)):
 @router.post("", response_model=UserPermissionResponse)
 def create_permission(
     payload: UserPermissionCreate,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     """Create a new permission (Super Admin only)"""
@@ -85,7 +83,6 @@ def create_permission(
 def update_permission(
     id: UUID,
     payload: UserPermissionUpdate,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     """Update a permission (Super Admin only)"""
@@ -104,7 +101,6 @@ def update_permission(
 @router.delete("/{id}")
 def delete_permission(
     id: UUID,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     """Soft delete a permission (Super Admin only)"""
@@ -145,7 +141,6 @@ def get_role_permissions(
 def assign_permission_to_role(
     role_id: UUID,
     payload: UserRolePermissionCreate,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     """Assign a permission to a role"""
@@ -190,7 +185,6 @@ def assign_permission_to_role(
 def remove_permission_from_role(
     role_id: UUID,
     permission_id: UUID,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     """Remove a permission from a role"""
@@ -213,7 +207,6 @@ def remove_permission_from_role(
 def assign_permissions_bulk(
     role_id: UUID,
     payload: dict,  # {"permission_ids": [uuid1, uuid2, ...]}
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     """Assign multiple permissions to a role at once"""

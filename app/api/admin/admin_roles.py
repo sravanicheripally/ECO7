@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_super_admin
 from app.models.user import User
 from app.models.user_role import UserRole
 from app.schemas.user_role import (
@@ -30,17 +29,20 @@ def get_role(id: UUID, db: Session = Depends(get_db)):
 @router.post("", response_model=UserRoleResponse)
 def create_role(
     payload: UserRoleCreate,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
 
+    # Check if role already exists (code is already normalized to uppercase by validator)
     exists = db.query(UserRole).filter(
         (UserRole.name == payload.name) |
-        (UserRole.code == payload.code)
+        (UserRole.code == payload.code)  # Normalized code from validator
     ).first()
 
     if exists:
-        raise HTTPException(status_code=400, detail="Role already exists")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Role with this name or code already exists. Code: {payload.code}"
+        )
 
     role = UserRole(
         name=payload.name,
@@ -61,7 +63,6 @@ def create_role(
 def update_role(
     id: UUID,
     payload: UserRoleUpdate,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     role = db.query(UserRole).filter(UserRole.id == id).first()
@@ -85,7 +86,6 @@ def update_role(
 @router.delete("/{id}")
 def delete_role(
     id: UUID,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
     role = db.query(UserRole).filter(UserRole.id == id).first()

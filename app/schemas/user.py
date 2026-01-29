@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from uuid import UUID
-from typing import Optional,List
+from typing import Optional, List
 
 
 class UserRoleResponse(BaseModel):
@@ -19,6 +19,17 @@ class UserMeResponse(BaseModel):
     username: str
     is_active: bool
     roles: List[UserRoleResponse]
+
+    class Config:
+        from_attributes = True
+
+
+class LoginResponse(BaseModel):
+    """Response after successful login with user roles"""
+    access_token: str
+    refresh_token: str
+    token_type: str
+    user: UserMeResponse
 
     class Config:
         from_attributes = True

@@ -5,8 +5,6 @@ from datetime import datetime
 
 from app.core.database import get_db
 from app.core.security import hash_password
-from app.core.dependencies import get_current_super_admin
-
 from app.models.user import User
 from app.models.user_role import UserRole
 from app.models.user_user_role import UserUserRole
@@ -113,7 +111,6 @@ def get_user_by_id(id: UUID, db: Session = Depends(get_db)):
 @router.post("")
 def create_user(
     payload: UserCreate,
-    current_user: User = Depends(get_current_super_admin),
     db: Session = Depends(get_db)
 ):
 
