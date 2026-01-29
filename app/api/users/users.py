@@ -182,10 +182,11 @@ def delete_user(id: UUID, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user.is_active = False
+    db.delete(user)
     db.commit()
 
-    return {"message": "User deleted successfully"}
+    return {"message": "User permanently deleted"}
+
 
 
 # ------------------------------------------------
